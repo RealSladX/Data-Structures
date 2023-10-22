@@ -94,7 +94,7 @@ public:
 
   void push(T *data) {
     Node<T> *newNode = new Node<T>(data);
-    if (stackSize == 0) {
+    if (isEmpty()) {
       top = newNode;
     }
     else {
@@ -106,7 +106,7 @@ public:
 
   void pop() {
     Node<T> *temp = top;
-    if (stackSize == 0) {
+    if (isEmpty()) {
       return;
     }
     if (stackSize == 1) {
@@ -120,7 +120,7 @@ public:
   }
   T *peek() {
       if (top == nullptr) {
-      cout << "QUEUE EMPTY" << endl;
+      cout << "EMPTY" << endl;
     } else {
       top->print();
     }
