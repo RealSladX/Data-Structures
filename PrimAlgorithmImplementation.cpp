@@ -9,10 +9,12 @@ const int MAX_PRIM_EDGES = 4;
 struct Vertex {
     int vertexID;
     int numAdjacentVertices;
+    bool discovered;
 
     Vertex(int vertexID) {
         this->vertexID = vertexID;
         numAdjacentVertices = 0;
+        discovered = false;
     }
 
     void print(){
@@ -37,6 +39,21 @@ struct Edge {
         this->weight = weight;
         this->edgeName = to_string(vertex1->vertexID) + " - " + to_string(vertex2->vertexID);
         permanentMST = false;
+    }
+
+    bool hasVertex(Vertex* vertex){
+        if(this->vertex1 == vertex || this->vertex2 == vertex) {
+            return true;
+        }
+        else return false;
+    }
+
+    bool compareEdge(Edge* e2)
+    {
+        if(this->vertex1 == e2->vertex1 || this->vertex1 == e2->vertex2 && this->weight == e2->weight) {
+            return true;
+        }
+        else return false;
     }
 
     void print(){
@@ -87,7 +104,7 @@ struct MinHeap{
 
     void insert(int vertex, int weight){
         heapSize++;
-        int i = heapSize -1;
+        int i = heapSize - 1;
         heapArray[i] = weight;
         vertexTracker[vertex] = i;
 
@@ -117,8 +134,8 @@ struct MinHeap{
         int i = vertexTracker[vertex];
         heapArray[i] = weight;
 
-        while (i != 0 && heapArray[(i-1)/2] > heapArray[i]) {
-            swap(heapArray[i], heapArray[(i-1)/2]);
+        while (i != 0 && heapArray[(i - 1)/2] > heapArray[i]) {
+            swap(heapArray[i], heapArray[(i - 1)/2]);
             i = (i - 1)/2;
         }
     }
@@ -180,7 +197,7 @@ public:
 
         cout << endl;
 
-        cout << "Here are the edges for your Graph: " << endl;
+        cout << "Here are the Edges for your Graph: " << endl;
         for(int i = 0; i < edgeCount; i++){
             edges[i]->print();
             cout << endl;
@@ -202,30 +219,45 @@ public:
     }
 
     void primMST(){
-        int* parents = new int[vertexCount];
-        int* weights = new int[vertexCount];
-
         MinHeap* graphMinHeap = new MinHeap(vertexCount);
+        Vertex* permanent[MAX_ADJACENT_VERTICES];
+        Vertex* temporary[MAX_ADJACENT_VERTICES];
+        Edge* primEdges[MAX_EDGES];
 
         for(int i = 0; i < vertexCount; i++){
-            parents[i] = -1;
+            temporary[i] = vertices[i];
+        }
+        Vertex* startVertex = vertices[0];
+        
+        for(int i = 0; i < edgeCount; i++){
+            if (edges[i]->hasVertex(startVertex)){
+                graphMinHeap->insert(i, edges[i]->weight);
+            }
+            else {
+                graphMinHeap->insert(i, 0);
+            }
+            cout << graphMinHeap->heapArray[i] << " ";
         }
     }
     
 };
 
+
 int main() {
     Graph* testGraph = new Graph(5);
-    testGraph->addEdge(testGraph->vertices[0], testGraph->vertices[1], 3);
+    
     testGraph->addEdge(testGraph->vertices[0], testGraph->vertices[2], 65);
-    testGraph->addEdge(testGraph->vertices[2], testGraph->vertices[1], 85);
-    testGraph->addEdge(testGraph->vertices[3], testGraph->vertices[1], 20);
+    testGraph->addEdge(testGraph->vertices[2], testGraph->vertices[4], 77);
+    testGraph->addEdge(testGraph->vertices[1], testGraph->vertices[3], 20);
+    testGraph->addEdge(testGraph->vertices[0], testGraph->vertices[1], 3);
     testGraph->addEdge(testGraph->vertices[1], testGraph->vertices[4], 45);
-    testGraph->addEdge(testGraph->vertices[3], testGraph->vertices[2], 41);
-    testGraph->addEdge(testGraph->vertices[4], testGraph->vertices[2], 77);
-    testGraph->addEdge(testGraph->vertices[4], testGraph->vertices[3], 51);
-    testGraph->printGraph();
-    testGraph->printVertices();
+    testGraph->addEdge(testGraph->vertices[2], testGraph->vertices[3], 41);
+    testGraph->addEdge(testGraph->vertices[3], testGraph->vertices[4], 51);
+    testGraph->addEdge(testGraph->vertices[1], testGraph->vertices[2], 85);
+   
+    // testGraph->printGraph();
+    // testGraph->printVertices();
 
+    testGraph->primMST();
     return 0;
 }
