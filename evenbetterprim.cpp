@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string>
+
 using namespace std;
 
 const int MAX_ADJACENT_VERTICES = 5;
@@ -22,7 +22,7 @@ struct Vertex {
     }
 
     void print(){
-        cout << vertexID << " ";
+        cout << vertexID;
     }
 
     void printAdj(){
@@ -35,7 +35,6 @@ struct Vertex {
 };
 
 struct Edge {
-    string edgeName;
     Vertex* from;
     Vertex* to;
     int weight;
@@ -45,11 +44,13 @@ struct Edge {
         this->to = v2;
         this->weight = weight;
         v1->addAdjVertex(v2);
-        this->edgeName = to_string(from->vertexID) + " - " + to_string(to->vertexID);
     }
 
     void print(){
-        cout << edgeName << " -> " << weight << endl;
+        from->print();
+        cout << " - ";
+        to->print();
+        cout << " -> " << weight;
     }
 };
 
@@ -168,8 +169,8 @@ public:
     int adjMatrix[MAX_ADJACENT_VERTICES][MAX_ADJACENT_VERTICES];
     int vertexCount;
     int edgeCount = 0;
-    Vertex* vertices[MAX_ADJACENT_VERTICES] = {nullptr};
-    Edge* edges[MAX_EDGES] = {nullptr};
+    Vertex* vertices[MAX_ADJACENT_VERTICES] = {0};
+    Edge* edges[MAX_EDGES] = {0};
 
     Graph(int inputMatrix[][MAX_ADJACENT_VERTICES], int matrixSize) {
         vertexCount = matrixSize;
@@ -190,10 +191,6 @@ public:
                 }
             }
         }
-        for (int i = 0; i < edgeCount; i++){
-            edges[i]->print();
-        }
-        
     }
     
     ~Graph(){
@@ -219,6 +216,11 @@ public:
             cout << endl;
         }
         cout << endl;
+
+        for (int i = 0; i < edgeCount; i++){
+            Edge* printEdge = edges[i];
+            printEdge->print();
+        }
         
     }      
 
@@ -268,7 +270,7 @@ int main() {
 
     Graph* testGraph = new Graph(G, matrixSize);
 
-    //testGraph->printGraph();
+    testGraph->printGraph();
     
     //testGraph->primMST(0);
     return 0;
