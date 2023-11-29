@@ -52,23 +52,18 @@ struct Edge {
 };
 
 struct MSTEdge {
-  Vertex *from;
-  Vertex *to;
+  int from;
+  int to;
   int weight;
 
-  MSTEdge(Vertex* v1, Vertex* v2, int weight) {
+  MSTEdge(int v1, int v2, int weight) {
     this->from = v1;
     this->to = v2;
     this->weight = weight;
   }
 
   void print() {
-    from->print();
-    cout << "- ";
-    to->print();
-    cout << "-> ";
-    cout << weight;
-    cout << endl;
+    cout << from << " - " << to << weight << endl;
   }
 };
 
@@ -191,8 +186,8 @@ public:
   Vertex *vertices[_MAX_INT_DIG] = {nullptr};
   Edge *edges[_MAX_INT_DIG] = {nullptr};
 
-  Graph(int inputMatrix[][5], int matrixSize) {
-    vertexCount = matrixSize;
+  Graph(int inputMatrix[][_MAX_INT_DIG]) {
+    vertexCount;
     for (int i = 0; i < vertexCount; i++) {
       Vertex *newVertex = new Vertex(i);
       vertices[i] = newVertex;
@@ -254,9 +249,9 @@ public:
       Vertex* permanent[_MAX_INT_DIG] = {nullptr};
       Vertex* unvisited[_MAX_INT_DIG] = {nullptr};
       MSTEdge* edgesMST[_MAX_INT_DIG] = {nullptr};
-      MSTEdge* discoveredEdges[_MAX_INT_DIG];
+      MSTEdge* discoveredEdges[_MAX_INT_DIG] = {nullptr};
       MinHeap* edgeMinHeap = new MinHeap(_MAX_INT_DIG);
-      int from = 0;
+      int from = 3;
       int insertKey;
       int discEdgeCount = 0;
       int MSTEdgeCount = 0;
@@ -268,37 +263,36 @@ public:
       permanent[from] = unvisited[from];
       unvisited[from] = nullptr;
       
-      while(MSTEdgeCount < vertexCount){
-        for(int to = 0; to < vertexCount; to++){
-          insertKey = adjMatrix[from][to];
-          if(insertKey != 0){
-            MSTEdge* foundEdge = new MSTEdge(vertices[from], vertices[to], insertKey);
-            discoveredEdges[discEdgeCount] = foundEdge;
-            edgeMinHeap->insert(discEdgeCount, insertKey);
-            discEdgeCount++;
-            
+      while(MSTEdgeCount < 5){
+        for(int e = 0; e < edgeCount; e++){
+          Edge* checkEdge = edges[e];
+          int checkTo = checkEdge->to->vertexID;
+          if(checkEdge->from == permanent[from] && checkEdge->to == unvisited[checkTo]){
+            edgeMinHeap->insert(e, checkEdge->weight);
           }
         }
         
-        
         int minEdge = edgeMinHeap->getMinItem();
-        int checkFrom = discoveredEdges[minEdge]->from->vertexID;
-        int checkTo = discoveredEdges[minEdge]->to->vertexID;
-        
-        while(permanent[checkFrom] == nullptr && unvisited[checkTo] == false){
+        int minCheckFrom = discoveredEdges[minEdge]->from->vertexID;
+        int minCheckTo = discoveredEdges[minEdge]->to->vertexID;
+    
+        while(permanent[minCheckFrom] != nullptr && unvisited[minCheckTo] == nullptr){
           edgeMinHeap->extractMin();
           minEdge = edgeMinHeap->getMinItem();
           checkFrom = discoveredEdges[minEdge]->from->vertexID;
           checkTo = discoveredEdges[minEdge]->to->vertexID;
         }
+        cout << minEdge << endl;
+        cout << checkFrom << endl;
+        cout << checkTo << endl;
         // edgeMinHeap->printMinHeap();
         // cout << endl << endl;
         permanent[checkTo] = vertices[checkTo];
-        unvisited[checkTo] = false;
+        unvisited[checkTo] = nullptr;
         edgesMST[MSTEdgeCount] = discoveredEdges[minEdge];
         MSTEdgeCount++;
-        from = checkTo;
-        cout << from << endl;
+        // int from = checkTo;
+        // cout << from << endl;
       }
       
 
@@ -360,15 +354,15 @@ int main() {
 
   int matrixSize = sizeof(G) / sizeof(G[0]);
 
-  Graph *testGraph = new Graph(G, matrixSize);
+  Graph *testGraph = new Graph(G);
 
-  // testGraph->printAdjList();
+  //testGraph->printAdjList();
   
-  // testGraph->printEdges();
+  testGraph->printEdges();
 
-  // testGraph->printAdjMatrix();
+  //testGraph->printAdjMatrix();
 
-  testGraph->primMST();
+  //testGraph->primMST();
 
   delete testGraph;
 
