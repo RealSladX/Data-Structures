@@ -3,8 +3,8 @@
 using namespace std;
 
 const int MAX_ADJACENT_VERTICES = 5;
-const int MAX_EDGES = 17;
-const int MAX_PRIM_EDGES = 50;
+const int MAX_EDGES = 9;
+const int MAX_MST_EDGES = 5;
 
 struct Edge {
     int from;
@@ -47,11 +47,11 @@ struct MinHeap{
     }
 
     int leftChild(int i) {
-        return 2*i + 1;
+        return (2*i + 1);
     }
 
     int rightChild(int i) {
-        return 2*i + 2;
+        return (2*i + 2);
     }
 
     void swap(int *a, int *b){
@@ -62,8 +62,8 @@ struct MinHeap{
 
     void heapify(int inputIndex){
         int minIndex = inputIndex;
-        int left = leftChild(inputIndex);
-        int right = rightChild(inputIndex);
+        int left = leftChild(minIndex);
+        int right = rightChild(minIndex);
 
         if(left < heapSize && heapArray[left] < heapArray[minIndex]){
             minIndex = left;
@@ -95,6 +95,13 @@ struct MinHeap{
             heapIndex = parent(heapIndex);
         }
     }
+    void getMin(){
+        if(heapSize <=0) {
+            cout << "Error Heap is Empty" << endl;
+        }
+        minItem = itemTracker[0];
+        minKey = heapArray[0];
+    }
 
     void extractMin(){
         if(heapSize <=0) {
@@ -102,33 +109,11 @@ struct MinHeap{
         }
         if (heapSize == 1) {
             heapSize--;
-            minKey = heapArray[0];
-            minItem = itemTracker[0];
         }
-        minKey = heapArray[0];
-        minItem = itemTracker[0];
         heapArray[0] = heapArray[heapSize - 1];
         itemTracker[0] = itemTracker[heapSize - 1];
         heapSize--;
         heapify(0);
-    }
-
-    int getMinKey(){
-        if(heapSize <=0) {
-            cout << "Error Heap is Empty" << endl;
-            return -1;
-        }
-        minKey = heapArray[0];
-        return minKey;    
-    }
-
-    int getMinItem(){
-        if(heapSize <=0) {
-            cout << "Error Heap is Empty" << endl;
-            return -1;
-        }
-        minItem = itemTracker[0];
-        return minItem;
     }
 
     void decreaseKey(int index, int key){
@@ -163,40 +148,21 @@ public:
     int adjMatrix[MAX_ADJACENT_VERTICES][MAX_ADJACENT_VERTICES];
     int vertexCount;
     int edgeCount = 0;
-    int vertices[MAX_ADJACENT_VERTICES] = {0};
-    Edge* edges[MAX_EDGES] = {nullptr};
 
     Graph(int inputMatrix[][MAX_ADJACENT_VERTICES], int matrixSize) {
         vertexCount = matrixSize;
-        for(int v = 0; v < vertexCount; v++){
-            vertices[v] = v;
-        }
-
         for (int i = 0; i < vertexCount; i++) {
             for (int j = 0; j < vertexCount; j++) {
                 int inputWeight = inputMatrix[i][j];
-                adjMatrix[i][j] = inputWeight;
-                if(inputWeight != 0){
-                    Edge* newEdge = new Edge(i, j, inputWeight);
-                    edges[edgeCount] = newEdge;
-                    edgeCount++;
+                if (inputWeight != 0){
+                    inputMatrix[j][i] = 0;
                 }
+                adjMatrix[i][j] = inputWeight;
             }
-        }
-    }
-    
-    ~Graph(){
-        for (int i = 0; i < edgeCount; i++) {
-            delete edges[i];
         }
     }
 
     void printGraph(){
-        cout << "Here is a list of all vertices: " << endl;
-        for(int i = 0; i < vertexCount; i++){
-            cout << "Vertex " << vertices[i] << endl;
-        }
-        cout << endl;
 
         cout << "Here is the Adjacency Matrix for your Graph: " << endl;
         for(int i = 0; i < vertexCount; i++){
@@ -206,58 +172,75 @@ public:
             cout << endl;
         }
         cout << endl;
-
-        cout << "Here is the list of Edges from your Graph and their weights:" << endl;
-        for (int i = 0; i < edgeCount; i++){
-            edges[i]->print();
-        }
-        
     }      
 
     void primMST(){
-        bool permanent[MAX_ADJACENT_VERTICES] = {false};
-        bool unvisited[MAX_ADJACENT_VERTICES] = {true};
-        Edge* edgesMST[MAX_EDGES] = {nullptr};
-        int edgeMSTCount = 0;
-        MinHeap* graphMinHeap = new MinHeap(vertexCount);
-        int MSTCount = 0;
+        int permanent[MAX_ADJACENT_VERTICES];
+        int unvisited[MAX_ADJACENT_VERTICES];
+        Edge* MST[MAX_MST_EDGES] = {nullptr};
+        Edge* foundEdges[MAX_EDGES] = {nullptr};
+        int MSTEdgeCount = 0;
+        int foundEdgeCount = 0;
+        
+        MinHeap* graphMinHeap = new MinHeap(MAX_EDGES);
         
         for(int v = 0; v < vertexCount; v++){
-            graphMinHeap->insert(v, 10000);
-            unvisited[v] = true;
-        }
-
-        int start = 1;
-        permanent[start] = true;
-        unvisited[start] = false;
-
-        while(MSTCount < 5){
-            for(int e = 0; e < edgeCount; e++){
-                Edge* checkEdge = edges[e];
-                if(permanent[checkEdge->from] == 1 && unvisited[checkEdge->to] == 1){
-                    graphMinHeap->decreaseKey(checkEdge->to, checkEdge->weight);
-                }
-            }
-            
-            int minVertex = graphMinHeap->getMinItem();
-            int minWeight = graphMinHeap->getMinKey();
-            graphMinHeap->extractMin();
-            
-            graphMinHeap->insert(graphMinHeap->heapSize, 1000);
-
-            Edge* edgeMST = new Edge(start, minVertex, minWeight);
-            edgesMST[edgeMSTCount] = edgeMST;
-            edgeMST++;
-
-            permanent[minVertex] = true;
-            unvisited[minVertex] = false;
-            cout << start << endl;
-            start = minVertex;
-            MSTCount++;
-            
+            permanent[v] = -1;
+            unvisited[v] = v;
         }
 
         
+        int start = 0;
+        permanent[start] = start;
+        unvisited[start] = -1;
+        
+        while(MSTEdgeCount < 4){
+            for(int neighbor = 0; neighbor < vertexCount; neighbor++){
+                if(adjMatrix[start][neighbor] != 0){
+                    Edge* foundEdge = new Edge(start, neighbor, adjMatrix[start][neighbor]);
+                    foundEdges[foundEdgeCount] = foundEdge;
+                    graphMinHeap->insert(foundEdgeCount, adjMatrix[start][neighbor]);
+                    foundEdgeCount++;
+                }
+            }
+            graphMinHeap->getMin();
+            int minEdgeIndex = graphMinHeap->minItem;
+            
+            while(foundEdges[minEdgeIndex]->to == permanent[foundEdges[minEdgeIndex]->to] ){
+                graphMinHeap->extractMin();
+                graphMinHeap->getMin();
+                minEdgeIndex = graphMinHeap->minItem;
+            }
+
+            cout << graphMinHeap->minItem << endl;
+
+
+            MST[MSTEdgeCount] = foundEdges[minEdgeIndex];
+            
+            start = MST[MSTEdgeCount]->to;
+            
+            permanent[start] = start;
+            
+            MSTEdgeCount++;
+            // for(int p = 0; p < vertexCount; p++){
+            //     cout << permanent[p] << " ";
+            // } 
+            // cout << endl;
+
+            // for(int u = 0; u < vertexCount; u++){
+            //     cout << unvisited[u] << " ";
+            // }
+
+            // cout << endl;
+            // graphMinHeap->printHeapArray();
+            // graphMinHeap->printHeapVertices();
+            // cout << endl;
+            cout << endl;     
+        }     
+
+        for(int e = 0; e < MSTEdgeCount; e++){
+            MST[e]->print();
+        } 
     }
 };
 
@@ -275,7 +258,7 @@ int main() {
 
     Graph* testGraph = new Graph(G, matrixSize);
 
-    //testGraph->printGraph();
+    // testGraph->printGraph();
     
     testGraph->primMST();
     return 0;
