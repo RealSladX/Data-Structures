@@ -2,6 +2,18 @@
     "files.associations": {
         "iostream": "cpp",
         "ostream": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "xutility": "cpp",
+        "xiosbase": "cpp",
+        "queue": "cpp",
+        "utility": "cpp",
+        "iomanip": "cpp",
+        "array": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "vector": "cpp",
+        "algorithm": "cpp",
+        "xmemory": "cpp",
+        "xlocnum": "cpp"
     }
 }
